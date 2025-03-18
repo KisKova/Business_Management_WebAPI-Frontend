@@ -1,22 +1,35 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Header from "./components/Header";
-import Home from "./components/Home";
+import Header from "./components/HeaderOld";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import Dashboard from "./components/Dashboard"; // Import default CSS for toastify
+import Dashboard from "./components/Dashboard";
+import Profile from "./components/Profile";
+import AdminDashboard from "./components/AdminDashboard";
+import AdminCustomers from "./components/AdminCustomers";
+import CustomerEdit from "./components/CustomerEdit"
+import AdminProjects from "./components/AdminProjects";
+import AdminTasks from "./components/AdminTasks";
+import TimeTracking from "./components/TimeTracking";
 
 const Login = lazy(() => import("./components/Login"));
+
 const App = () => {
     return (
         <Router>
             <Header/>
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
-                    <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                    <Route path="/customers" element={<AdminCustomers />} />
+                    <Route path="/customers/:id" element={<CustomerEdit />} />
+                    <Route path="/projects" element={<AdminProjects />} />
+                    <Route path="/tasks" element={<AdminTasks />} />
+                    <Route path="/time-tracking" element={<TimeTracking />} />
                 </Routes>
             </Suspense>
             <ToastContainer

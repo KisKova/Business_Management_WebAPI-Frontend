@@ -88,7 +88,7 @@ export const updateUser = async (updatedData) => {
     });
 };
 
-export const fetchAllCustomers = async () => {
+export const fetchAllCustomers = async (id) => {
     const token = localStorage.getItem("authToken");
     return axios.get(`${API_URL}/customers`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -201,6 +201,28 @@ export const deleteProject = async (projectId) => {
     });
 };
 
+export const addManualTracking = async (manualTracking) => {
+    const token = localStorage.getItem("authToken");
+    console.log(manualTracking);
+    return axios.post(`${API_URL}/time-tracking/manual`,manualTracking, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
+export const updateTracking = (id, data) => {
+    const token = localStorage.getItem("authToken");
+    return axios.put(`${API_URL}/time-tracking/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
+export const deleteTracking = async (id) => {
+    const token = localStorage.getItem("authToken");
+    return axios.delete(`${API_URL}/time-tracking/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
 // ✅ Start tracking
 export const startTracking = async (note) => {
     const token = localStorage.getItem("authToken");
@@ -241,17 +263,17 @@ export const fetchTimeTrackings = async () => {
     });
 };
 
-// ✅ Fetch Active/Ongoing Time Trackings
-export const fetchActiveTrackings = async () => {
-    const token = localStorage.getItem("authToken");
-    return axios.get(`${API_URL}/time-tracking/active`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-};
-
 export const fetchAllActiveTrackings = async () => {
     const token = localStorage.getItem("authToken");
     return axios.get(`${API_URL}/time-tracking/all-active`, {
         headers: { Authorization: `Bearer ${token}` },
     });
 };
+
+export const fetchCustomerSummary = async(customerId) => {
+    const token = localStorage.getItem("authToken");
+    return axios.get(`${API_URL}/time-tracking/${customerId}/summary`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+

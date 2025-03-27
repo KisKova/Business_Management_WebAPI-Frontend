@@ -5,13 +5,11 @@ import { toast } from "react-toastify";
 const Dashboard = () => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(() => {
-        // Load user data from localStorage on component mount
         const storedUser = localStorage.getItem("userData");
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
     useEffect(() => {
-        // If no user data exists in localStorage, redirect to login
         if (!userData) {
             navigate("/login");
         }
@@ -52,22 +50,30 @@ const Dashboard = () => {
 const styles = {
     container: {
         textAlign: "center",
-        marginTop: "50px"
+        marginTop: "50px",
+        maxWidth: "400px",
+        margin: "auto"
     },
     button: {
-        padding: "10px 20px",
+        padding: "10px 15px",
         margin: "10px",
         fontSize: "16px",
+        boxShadow: "rgba(0, 0, 0, 0.16) 0px 2px 5px",
         cursor: "pointer",
+        borderRadius: "5px",
+        background: "#007bff",
+        color: "white",
+        border: "none"
     },
     logoutButton: {
-        backgroundColor: "red",
+        background: "#dc3545",
         color: "white",
-        padding: "10px 20px",
+        padding: "10px 15px",
         fontSize: "16px",
         cursor: "pointer",
         border: "none",
         borderRadius: "5px",
+        boxShadow: "rgba(0, 0, 0, 0.16) 0px 2px 5px",
         marginTop: "20px"
     }
 };

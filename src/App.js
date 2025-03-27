@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Header from "./components/HeaderOld";
+import Header from "./components/Header";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from "./components/Dashboard";
@@ -12,6 +12,7 @@ import CustomerEdit from "./components/CustomerEdit"
 import AdminProjects from "./components/AdminProjects";
 import AdminTasks from "./components/AdminTasks";
 import TimeTracking from "./components/TimeTracking";
+import CustomerSummary from "./components/CustomerSummary";
 
 const Login = lazy(() => import("./components/Login"));
 
@@ -30,6 +31,7 @@ const App = () => {
                     <Route path="/projects" element={<AdminProjects />} />
                     <Route path="/tasks" element={<AdminTasks />} />
                     <Route path="/time-tracking" element={<TimeTracking />} />
+                    <Route path="/customer-summary" element={<CustomerSummary />} />
                 </Routes>
             </Suspense>
             <ToastContainer

@@ -33,7 +33,7 @@
   color: #61dafb;
 }
 
-/* Navbar Styles */
+/* Navbar Styles
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -41,7 +41,7 @@
   padding: 10px 20px;
   background-color: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-family: 'Roboto', sans-serif; /* Updated font family */
+  font-family: 'Roboto', sans-serif; /* Updated font family
 }
 
 .navbar-logo {
@@ -50,17 +50,17 @@
 }
 
 .navbar-logo span {
-  font-size: 24px; /* Increased font size for logo text */
-  font-weight: 700; /* Bold font weight */
-  color: white; /* Updated text color */
+  font-size: 24px; /* Increased font size for logo text
+  font-weight: 700; /* Bold font weight
+  color: white; /* Updated text color
 }
 
 
 .navbar-auth a {
   text-decoration: none;
-  color: #333; /* Same color code */
+  color: #333; /* Same color code
   font-size: 16px;
-}
+} */
 
 /* Login Container Styles */
 .login-container {
@@ -123,10 +123,7 @@
   border-radius: 50%;
   margin-right: 8px;
 }
-.navbar-profile{
-  display: flex;
-}
-
+/*
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -206,6 +203,7 @@
   background-color: red;
   color: white;
   border: none;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 5px 0px;
   padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
@@ -215,6 +213,447 @@
 
 .logout-button:hover {
   background-color: darkred;
+}*/
+
+
+/* MODAL */
+
+/* === Modal base styles === */
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
+.ReactModal__Content {
+  position: relative;
+  inset: unset !important;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: fadeInModal 0.2s ease-in-out;
+}
+
+/* === Modal animation === */
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Inputs and buttons inside modals === */
+.ReactModal__Content textarea,
+.ReactModal__Content select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.ReactModal__Content textarea {
+  min-height: 60px;
+  resize: vertical;
+  min-width: -webkit-fill-available;
+}
+
+.ReactModal__Content button {
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.ReactModal__Content button:hover {
+  background-color: #0056b3;
+}
+
+.ReactModal__Content h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+/* Admin Dashboard */
+
+.admin-container {
+  text-align: center;
+  margin: 50px auto auto auto;
+  max-width: 1000px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.admin-table td {
+  padding: 10px;
+}
+
+.admin-thead {
+  background: #007bff;
+  color: white;
+}
+
+.admin-trow {
+  border-top: 1px solid #007bff;
+  padding: 10px;
+}
+
+.admin-status-active {
+  color: green;
+  font-weight: bold;
+}
+
+.admin-status-inactive {
+  color: red;
+  font-weight: bold;
+}
+
+.admin-button,
+.create-user-button,
+.edit-user-button,
+.change-password-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  color: white;
+}
+
+.create-user-button {
+  background: #007bff;
+}
+
+.edit-user-button,
+.change-password-button {
+  background: #007bff;
+  padding: 5px 10px;
+  margin-right: 10px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  width: 400px;
+  height: auto;
+  margin: auto;
+  padding: 40px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Overlay covers the entire screen with semi-transparent background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal content is centered and styled */
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1001;
+}
+
+.ReactModal__Body--open {
+  overflow: hidden;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  gap: 10px;
+}
+
+.pagination-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-button.active {
+  background-color: #007bff;
+  font-weight: bold;
+}
+
+/* Navbar */
+
+/* Navbar Basics */
+.navbar {
+  display: flex;
+  flex-direction: column;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+}
+
+.navbar-logo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-text {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Desktop Nav */
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.navbar-links li {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-links a,
+.navbar-links button {
+  color: white;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navbar-time-tracking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+/* Responsive Nav */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 15px;
+    display: none;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .navbar-links li {
+    justify-content: center;
+  }
+
+  .start-button,
+  .stop-button,
+  .cancel-button,
+  .logout-button {
+    width: 100%;
+    text-align: center;
+    margin-right: 10px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 16px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0 2px 5px;
+    cursor: pointer;
+    border: none;
+    color: white;
+  }
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.1s ease;
+}
+
+.icon-button:hover {
+  transform: scale(1.05);
+}
+
+.tracking-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+/* === Admin Customers Styles (matching AdminDashboard) === */
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.customer-table th {
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.customer-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.edit-button {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background: #ffc107;
+  padding: 5px 10px;
+  font-size: 16px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 2px 5px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.custom-modal {
+  background: white;
+  padding: 30px;
+  width: 400px;
+  margin: auto;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-form input,
+.modal-form select {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.submit-button {
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-button {
+  background: #dc3545;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 16px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 2px 5px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchAllProjects, createProject, updateProject, deleteProject } from "../services/api";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
+import "../App.css";
 
 Modal.setAppElement("#root");
 
@@ -10,12 +11,20 @@ const AdminProjects = () => {
     const [modalType, setModalType] = useState(null);
     const [selectedProject, setSelectedProject] = useState(null);
     const [projectName, setProjectName] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const projectsPerPage = 10;
+
+    const totalPages = Math.ceil(projects.length / projectsPerPage);
+    const paginatedProjects = projects.slice(
+        (currentPage - 1) * projectsPerPage,
+        currentPage * projectsPerPage
+    );
+
 
     useEffect(() => {
         loadProjects();
     }, []);
 
-    // ✅ Load all projects
     const loadProjects = async () => {
         try {
             const response = await fetchAllProjects();
@@ -25,7 +34,6 @@ const AdminProjects = () => {
         }
     };
 
-    // ✅ Handle opening modals
     const openModal = (type, project = null) => {
         setModalType(type);
         setSelectedProject(project);
@@ -38,7 +46,6 @@ const AdminProjects = () => {
         setProjectName("");
     };
 
-    // ✅ Handle project creation
     const handleCreateProject = async (e) => {
         e.preventDefault();
         try {
@@ -51,7 +58,6 @@ const AdminProjects = () => {
         }
     };
 
-    // ✅ Handle project update
     const handleUpdateProject = async (e) => {
         e.preventDefault();
         try {
@@ -64,7 +70,6 @@ const AdminProjects = () => {
         }
     };
 
-    // ✅ Handle project deletion
     const handleDeleteProject = async (projectId) => {
         try {
             await deleteProject(projectId);
@@ -76,13 +81,12 @@ const AdminProjects = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div className="admin-container">
             <h2>Project Management</h2>
-            <button onClick={() => openModal("create")} style={styles.createButton}>+ Create Project</button>
+            <button onClick={() => openModal("create")} className="create-user-button">+ Create Project</button>
 
-            {/* Projects Table */}
-            <table style={styles.table}>
-                <thead>
+            <table className="admin-table">
+                <thead className="admin-thead">
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
@@ -90,43 +94,73 @@ const AdminProjects = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {projects.map((project) => (
-                    <tr key={project.id}>
+                {paginatedProjects.map((project) => (
+                    <tr key={project.id} className="admin-trow">
                         <td>{project.id}</td>
                         <td>{project.name}</td>
                         <td>
-                            <button onClick={() => openModal("edit", project)} style={styles.buttonEdit}>Edit</button>
-                            <button onClick={() => handleDeleteProject(project.id)} style={styles.buttonDelete}>Delete</button>
+                            <button onClick={() => openModal("edit", project)} className="edit-button">Edit</button>
+                            <button onClick={() => handleDeleteProject(project.id)} className="delete-button">Delete</button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
 
-            {/* Create/Edit Project Modal */}
-            <Modal isOpen={modalType === "create" || modalType === "edit"} onRequestClose={closeModal} style={styles.modal}>
-                <h3>{modalType === "create" ? "Create New Project" : "Edit Project"}</h3>
-                <form onSubmit={modalType === "create" ? handleCreateProject : handleUpdateProject} style={styles.form}>
-                    <label>Project Name:</label>
-                    <input type="text" value={projectName} onChange={(e) => setProjectName(e.target.value)} required />
+            <div className="pagination-container">
+                <button
+                    className="pagination-button"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                >
+                    &lt;
+                </button>
 
-                    <button type="submit">{modalType === "create" ? "Create" : "Save"}</button>
-                    <button type="button" onClick={closeModal}>Cancel</button>
+                {[...Array(totalPages)].map((_, i) => (
+                    <button
+                        key={i + 1}
+                        className={`pagination-button ${currentPage === i + 1 ? "active" : ""}`}
+                        onClick={() => setCurrentPage(i + 1)}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button
+                    className="pagination-button"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    &gt;
+                </button>
+            </div>
+
+
+            <Modal
+                isOpen={modalType === "create" || modalType === "edit"}
+                onRequestClose={closeModal}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
+                <h3>{modalType === "create" ? "Create New Project" : "Edit Project"}</h3>
+                <form onSubmit={modalType === "create" ? handleCreateProject : handleUpdateProject} className="admin-form">
+                    <label>Project Name:</label>
+                    <input
+                        type="text"
+                        value={projectName}
+                        className="admin-input"
+                        onChange={(e) => setProjectName(e.target.value)}
+                        required
+                    />
+
+                    <button type="submit" className="submit-button">
+                        {modalType === "create" ? "Create" : "Save"}
+                    </button>
+                    <button type="button" onClick={closeModal} className="delete-button">Cancel</button>
                 </form>
             </Modal>
         </div>
     );
-};
-
-// ✅ Styles
-const styles = {
-    container: { textAlign: "center", padding: "20px", maxWidth: "800px", margin: "auto" },
-    createButton: { padding: "10px 15px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", marginBottom: "20px", fontSize: "16px" },
-    table: { width: "100%", borderCollapse: "collapse", marginTop: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px", overflow: "hidden", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" },
-    buttonEdit: { padding: "5px 10px", backgroundColor: "#ffc107", color: "black", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "14px", marginRight: "5px" },
-    buttonDelete: { padding: "5px 10px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "14px" },
-    modal: { content: { width: "400px", margin: "auto", padding: "20px", textAlign: "center", borderRadius: "10px", boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)" } },
-    form: { display: "flex", flexDirection: "column", gap: "10px" }
 };
 
 export default AdminProjects;

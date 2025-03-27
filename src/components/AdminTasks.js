@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchAllTasks, createTask, updateTask, deleteTask } from "../services/api";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
+import "../App.css";
 
 Modal.setAppElement("#root");
 
@@ -11,11 +12,16 @@ const AdminTasks = () => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [taskName, setTaskName] = useState("");
 
+    // ✅ Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const tasksPerPage = 10;
+    const totalPages = Math.ceil(tasks.length / tasksPerPage);
+    const paginatedTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
+
     useEffect(() => {
         loadTasks();
     }, []);
 
-    // ✅ Load all tasks
     const loadTasks = async () => {
         try {
             const response = await fetchAllTasks();
@@ -25,7 +31,6 @@ const AdminTasks = () => {
         }
     };
 
-    // ✅ Handle opening modals
     const openModal = (type, task = null) => {
         setModalType(type);
         setSelectedTask(task);
@@ -38,7 +43,6 @@ const AdminTasks = () => {
         setTaskName("");
     };
 
-    // ✅ Handle task creation
     const handleCreateTask = async (e) => {
         e.preventDefault();
         try {
@@ -51,7 +55,6 @@ const AdminTasks = () => {
         }
     };
 
-    // ✅ Handle task update
     const handleUpdateTask = async (e) => {
         e.preventDefault();
         try {
@@ -64,7 +67,6 @@ const AdminTasks = () => {
         }
     };
 
-    // ✅ Handle task deletion
     const handleDeleteTask = async (taskId) => {
         try {
             await deleteTask(taskId);
@@ -76,13 +78,14 @@ const AdminTasks = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div className="admin-container">
             <h2>Task Management</h2>
-            <button onClick={() => openModal("create")} style={styles.createButton}>+ Create Task</button>
+            <button onClick={() => openModal("create")} className="create-user-button">
+                + Create Task
+            </button>
 
-            {/* Tasks Table */}
-            <table style={styles.table}>
-                <thead>
+            <table className="admin-table">
+                <thead className="admin-thead">
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
@@ -90,43 +93,74 @@ const AdminTasks = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {tasks.map((task) => (
-                    <tr key={task.id}>
+                {paginatedTasks.map((task) => (
+                    <tr key={task.id} className="admin-trow">
                         <td>{task.id}</td>
                         <td>{task.name}</td>
                         <td>
-                            <button onClick={() => openModal("edit", task)} style={styles.buttonEdit}>Edit</button>
-                            <button onClick={() => handleDeleteTask(task.id)} style={styles.buttonDelete}>Delete</button>
+                            <button onClick={() => openModal("edit", task)} className="edit-button">Edit</button>
+                            <button onClick={() => handleDeleteTask(task.id)} className="delete-button">Delete</button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
 
-            {/* Create/Edit Task Modal */}
-            <Modal isOpen={modalType === "create" || modalType === "edit"} onRequestClose={closeModal} style={styles.modal}>
-                <h3>{modalType === "create" ? "Create New Task" : "Edit Task"}</h3>
-                <form onSubmit={modalType === "create" ? handleCreateTask : handleUpdateTask} style={styles.form}>
-                    <label>Task Name:</label>
-                    <input type="text" value={taskName} onChange={(e) => setTaskName(e.target.value)} required />
+            {/* ✅ Pagination */}
+            <div className="pagination-container">
+                <button
+                    className="pagination-button"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                >
+                    &lt;
+                </button>
 
-                    <button type="submit">{modalType === "create" ? "Create" : "Save"}</button>
-                    <button type="button" onClick={closeModal}>Cancel</button>
+                {[...Array(totalPages)].map((_, i) => (
+                    <button
+                        key={i + 1}
+                        className={`pagination-button ${currentPage === i + 1 ? "active" : ""}`}
+                        onClick={() => setCurrentPage(i + 1)}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button
+                    className="pagination-button"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    &gt;
+                </button>
+            </div>
+
+            {/* ✅ Create/Edit Modal */}
+            <Modal
+                isOpen={modalType === "create" || modalType === "edit"}
+                onRequestClose={closeModal}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
+                <h3>{modalType === "create" ? "Create New Task" : "Edit Task"}</h3>
+                <form onSubmit={modalType === "create" ? handleCreateTask : handleUpdateTask} className="admin-form">
+                    <label>Task Name:</label>
+                    <input
+                        type="text"
+                        value={taskName}
+                        className="admin-input"
+                        onChange={(e) => setTaskName(e.target.value)}
+                        required
+                    />
+
+                    <button type="submit" className="submit-button">
+                        {modalType === "create" ? "Create" : "Save"}
+                    </button>
+                    <button type="button" onClick={closeModal} className="delete-button">Cancel</button>
                 </form>
             </Modal>
         </div>
     );
-};
-
-// ✅ Styles
-const styles = {
-    container: { textAlign: "center", padding: "20px", maxWidth: "800px", margin: "auto" },
-    createButton: { padding: "10px 15px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", marginBottom: "20px", fontSize: "16px" },
-    table: { width: "100%", borderCollapse: "collapse", marginTop: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px", overflow: "hidden", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" },
-    buttonEdit: { padding: "5px 10px", backgroundColor: "#ffc107", color: "black", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "14px", marginRight: "5px" },
-    buttonDelete: { padding: "5px 10px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "14px" },
-    modal: { content: { width: "400px", margin: "auto", padding: "20px", textAlign: "center", borderRadius: "10px", boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)" } },
-    form: { display: "flex", flexDirection: "column", gap: "10px" }
 };
 
 export default AdminTasks;

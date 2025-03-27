@@ -11,6 +11,8 @@ import {
 } from "../services/api";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
+import { Menu, X, PlayCircle, StopCircle, Timer } from "lucide-react"; // if you're using lucide, or just use SVG
+
 
 Modal.setAppElement("#root");
 
@@ -18,27 +20,25 @@ const Header = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // ✅ Load user data from localStorage on mount
     const [userData, setUserData] = useState(() => {
         const storedUser = localStorage.getItem("userData");
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
-    // ✅ Time tracking state
     const [tracking, setTracking] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [modalType, setModalType] = useState(null);
     const [note, setNote] = useState("");
-
-    // ✅ Stop tracking selections
     const [selectedCustomer, setSelectedCustomer] = useState("");
     const [selectedProject, setSelectedProject] = useState("");
     const [selectedTask, setSelectedTask] = useState("");
     const [assignedCustomers, setAssignedCustomers] = useState([]);
     const [projects, setProjects] = useState([]);
     const [tasks, setTasks] = useState([]);
+    // inside Header component
+    const [menuOpen, setMenuOpen] = useState(false);
+    const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-    // ✅ Load active tracking from API on mount & login
     const loadActiveTracking = useCallback(async () => {
         try {
             const response = await getActiveTracking();
@@ -53,17 +53,15 @@ const Header = () => {
         }
     }, []);
 
-    // ✅ Update user data & active tracking on login/logout or page reload
     useEffect(() => {
         const storedUser = localStorage.getItem("userData");
         setUserData(storedUser ? JSON.parse(storedUser) : null);
 
         if (storedUser) {
-            loadActiveTracking(); // Ensure tracking loads correctly
+            loadActiveTracking();
         }
     }, [location, loadActiveTracking]);
 
-    // ✅ Update elapsed time every second when tracking is active
     useEffect(() => {
         if (tracking) {
             const interval = setInterval(() => {
@@ -73,13 +71,11 @@ const Header = () => {
         }
     }, [tracking]);
 
-    // ✅ Calculate elapsed time from start_time
     const updateElapsedTime = (startTime) => {
         const diff = Math.floor((new Date() - new Date(startTime)) / 1000);
         setElapsedTime(diff);
     };
 
-    // ✅ Handle starting a time tracking session
     const handleStartTracking = async () => {
         try {
             const response = await startTracking(note);
@@ -93,7 +89,6 @@ const Header = () => {
         }
     };
 
-    // ✅ Open Stop Tracking Modal and Fetch Data
     const openStopModal = async () => {
         try {
             const [customersResponse, projectsResponse, tasksResponse] = await Promise.all([
@@ -110,7 +105,6 @@ const Header = () => {
         }
     };
 
-    // ✅ Stop Time Tracking
     const handleStopTracking = async () => {
         if (!selectedProject || !selectedTask || !selectedCustomer) {
             toast.error("Please select a project, task, and customer.");
@@ -127,7 +121,6 @@ const Header = () => {
         }
     };
 
-    // ✅ Convert elapsed time to HH:MM:SS format
     const formatElapsedTime = (seconds) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -135,7 +128,6 @@ const Header = () => {
         return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     };
 
-    // ✅ Logout function
     const logout = () => {
         setUserData(null);
         setTracking(null);
@@ -149,8 +141,14 @@ const Header = () => {
         <nav className="navbar">
             <div className="navbar-logo">
                 <span className="logo-text">PPC API</span>
+
+                {/* Hamburger button */}
+                <button className="menu-toggle" onClick={toggleMenu}>
+                    {menuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
             </div>
-            <ul className="navbar-links">
+
+            <ul className={`navbar-links ${menuOpen ? "open" : ""}`}>
                 {userData ? (
                     <>
                         <li><Link to="/time-tracking">Time Tracking</Link></li>
@@ -160,69 +158,104 @@ const Header = () => {
                                 <li><Link to="/projects">Projects</Link></li>
                                 <li><Link to="/customers">Customers</Link></li>
                                 <li><Link to="/admin-dashboard">Admin Panel</Link></li>
+                                <li><Link to="/customer-summary">Customer Summary</Link></li>
                             </>
                         )}
-
-                        {/* ✅ Time Tracking Section */}
-                        {!tracking && (
+                        {!tracking ? (
                             <li>
-                                <button onClick={() => setModalType("startTracking")} className="start-button">Start Tracking</button>
+                                <button onClick={() => setModalType("startTracking")} className="icon-button" title="Start Tracking">
+                                    <PlayCircle size={28} />
+                                </button>
                             </li>
-                        )}
-                        {tracking && (
+                        ) : (
                             <li className="navbar-time-tracking">
-                                <span>⏳ {formatElapsedTime(elapsedTime)}</span>
-                                <button onClick={openStopModal} className="stop-button">Stop</button>
+                                <span className="tracking-icon">
+                                  <Timer size={20} style={{ marginRight: "6px" }} />
+                                    {formatElapsedTime(elapsedTime)}
+                                </span>
+                                <button onClick={openStopModal} className="icon-button" title="Stop Tracking">
+                                    <StopCircle size={28} />
+                                </button>
                             </li>
-                        )}
 
+                        )}
                         <li className="navbar-profile-container">
                             <Link to="/profile">
                                 <span className="username">{userData.username}</span>
                             </Link>
                         </li>
                         <li className="navbar-profile-container">
-                            <button className="logout-button" onClick={logout}>Logout</button>
+                            <button className="logout-button" onClick={logout}>
+                                Logout
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                                    <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                    <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                </svg>
+                            </button>
                         </li>
                     </>
                 ) : (
-                    <li>
-                        <Link to="/login">Login</Link>
-                    </li>
+                    <li><Link to="/login">Login</Link></li>
                 )}
             </ul>
 
-            {/* ✅ Start Tracking Modal */}
-            <Modal isOpen={modalType === "startTracking"} onRequestClose={() => setModalType(null)}>
+            {/* Start Tracking Modal */}
+            <Modal
+                isOpen={modalType === "startTracking"}
+                onRequestClose={() => setModalType(null)}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
                 <h3>Start Time Tracking</h3>
-                <textarea placeholder="What are you working on?" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
-                <button onClick={handleStartTracking} className="start-button">Start</button>
-                <button onClick={() => setModalType(null)}>Cancel</button>
+
+                <form className="admin-form">
+                    <textarea
+                        placeholder="What are you working on?"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                    ></textarea>
+                    <button onClick={handleStartTracking} className="start-button">Start</button>
+                    <button onClick={() => setModalType(null)} className="cancel-button">Cancel</button>
+                </form>
             </Modal>
 
-            {/* ✅ Stop Tracking Modal */}
-            <Modal isOpen={modalType === "stopTracking"} onRequestClose={() => setModalType(null)}>
+            {/* Stop Tracking Modal */}
+            <Modal
+                isOpen={modalType === "stopTracking"}
+                onRequestClose={() => setModalType(null)}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
                 <h3>Stop Time Tracking</h3>
-                <label>Customer:</label>
-                <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)}>
-                    <option value="">Select Customer</option>
-                    {assignedCustomers.map(customer => <option key={customer.id} value={customer.id}>{customer.name}</option>)}
-                </select>
 
-                <label>Project:</label>
-                <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)}>
-                    <option value="">Select Project</option>
-                    {projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}
-                </select>
+                <form className="admin-form">
+                    <label>Customer:</label>
+                    <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)}>
+                        <option value="">Select Customer</option>
+                        {assignedCustomers.map((customer) => (
+                            <option key={customer.id} value={customer.id}>{customer.name}</option>
+                        ))}
+                    </select>
 
-                <label>Task:</label>
-                <select value={selectedTask} onChange={(e) => setSelectedTask(e.target.value)}>
-                    <option value="">Select Task</option>
-                    {tasks.map(task => <option key={task.id} value={task.id}>{task.name}</option>)}
-                </select>
+                    <label>Project:</label>
+                    <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)}>
+                        <option value="">Select Project</option>
+                        {projects.map((project) => (
+                            <option key={project.id} value={project.id}>{project.name}</option>
+                        ))}
+                    </select>
 
-                <button onClick={handleStopTracking} className="stop-button">Stop</button>
-                <button onClick={() => setModalType(null)}>Cancel</button>
+                    <label>Task:</label>
+                    <select value={selectedTask} onChange={(e) => setSelectedTask(e.target.value)}>
+                        <option value="">Select Task</option>
+                        {tasks.map((task) => (
+                            <option key={task.id} value={task.id}>{task.name}</option>
+                        ))}
+                    </select>
+
+                    <button onClick={handleStopTracking} className="stop-button">Stop</button>
+                    <button onClick={() => setModalType(null)} className="cancel-button">Cancel</button>
+                </form>
             </Modal>
         </nav>
     );

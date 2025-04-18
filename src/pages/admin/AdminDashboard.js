@@ -1,119 +1,33 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
-import {
-    fetchAllUsers,
-    createUser,
-    updateUser,
-    changeUserPasswordAdmin,
-} from "../services/api";
-import { toast } from "react-toastify";
-
+import {usePagination} from "../../hooks/usePagination";
+import {useUsers} from "../../hooks/useUsers";
 Modal.setAppElement("#root");
 
 const AdminDashboard = () => {
-    const navigate = useNavigate();
-    const [users, setUsers] = useState([]);
-    const [modalType, setModalType] = useState(null);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [userData, setUserData] = useState({
-        id: "",
-        username: "",
-        email: "",
-        role: "user",
-        is_active: true,
-    });
-    const [newPasswordData, setNewPasswordData] = useState({
-        id: "",
-        newPassword: "",
-    });
-    const [newUser, setNewUser] = useState({
-        username: "",
-        email: "",
-        password: "",
-        role: "user",
-    });
+    const {
+        users,
+        modalType,
+        userData,
+        newUser,
+        newPasswordData,
+        openModal,
+        closeModal,
+        setUserData,
+        setNewUser,
+        setNewPasswordData,
+        handleCreateUser,
+        handleUserUpdate,
+        handlePasswordUpdate,
+    } = useUsers();
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 10;
-
-    const totalPages = Math.ceil(users.length / usersPerPage);
-    const paginatedUsers = users.slice(
-        (currentPage - 1) * usersPerPage,
-        currentPage * usersPerPage
-    );
-
-
-    useEffect(() => {
-        const loadUsers = async () => {
-            try {
-                const response = await fetchAllUsers();
-                setUsers(response.data);
-            } catch (error) {
-                toast.error("Failed to fetch users.");
-                navigate("/login");
-            }
-        };
-        loadUsers();
-    }, [navigate]);
-
-    const openModal = (type, user = null) => {
-        setModalType(type);
-        setSelectedUser(user);
-        if (type === "editUser" && user) {
-            setUserData({
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                is_active: user.is_active,
-            });
-        }
-        if (type === "changePassword" && user) {
-            setNewPasswordData({ id: user.id, newPassword: "" });
-        }
-    };
-
-    const closeModal = () => setModalType(null);
-
-    const handleCreateUser = async (e) => {
-        e.preventDefault();
-        try {
-            await createUser(newUser);
-            toast.success("User created successfully!");
-            setModalType(null);
-            setNewUser({ username: "", email: "", password: "", role: "user" });
-            const response = await fetchAllUsers();
-            setUsers(response.data);
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Error creating user.");
-        }
-    };
-
-    const handleUserUpdate = async (e) => {
-        e.preventDefault();
-        try {
-            await updateUser(userData);
-            toast.success("User updated successfully!");
-            closeModal();
-            const response = await fetchAllUsers();
-            setUsers(response.data);
-        } catch (error) {
-            toast.error("Error updating user.");
-        }
-    };
-
-    const handlePasswordUpdate = async (e) => {
-        e.preventDefault();
-        try {
-            await changeUserPasswordAdmin(newPasswordData);
-            toast.success("Password changed successfully!");
-            closeModal();
-            setNewPasswordData({ id: "", newPassword: "" });
-        } catch (error) {
-            toast.error("Error changing password.");
-        }
-    };
+    const {
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        paginatedItems: paginatedUsers,
+        nextPage,
+        prevPage,
+    } = usePagination(users, 10);
 
     return (
         <div className="admin-container">
@@ -163,11 +77,7 @@ const AdminDashboard = () => {
             </table>
 
             <div className="pagination-container">
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
+                <button className="pagination-button" onClick={prevPage} disabled={currentPage === 1}>
                     &lt;
                 </button>
 
@@ -181,16 +91,10 @@ const AdminDashboard = () => {
                     </button>
                 ))}
 
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
+                <button className="pagination-button" onClick={nextPage} disabled={currentPage === totalPages}>
                     &gt;
                 </button>
             </div>
-
-
 
             {/* Create User Modal */}
             <Modal

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchCustomerById, updateCustomer, fetchAllUsers, assignUserToCustomer, fetchUsersByCustomerId, removeUserFromCustomer } from "../services/api";
+import { fetchCustomerById, updateCustomer, assignUserToCustomer, fetchUsersByCustomerId, removeUserFromCustomer } from "../../services/customerService";
+import { fetchAllUsers } from "../../services/userService";
 import { toast } from "react-toastify";
 
 const CustomerEdit = () => {
@@ -23,13 +24,13 @@ const CustomerEdit = () => {
         const loadCustomer = async () => {
             try {
                 const response = await fetchCustomerById(id);
-                setCustomerData(response.data);
+                setCustomerData(response.data.data);
 
                 const userResponse = await fetchAllUsers();
-                setUsers(userResponse.data);
+                setUsers(userResponse.data.data);
 
                 const assignedUsersResponse = await fetchUsersByCustomerId(id);
-                setAssignedUsers(assignedUsersResponse.data);
+                setAssignedUsers(assignedUsersResponse.data.data);
             } catch (error) {
                 toast.error("Failed to fetch customer data.");
             }
@@ -61,7 +62,7 @@ const CustomerEdit = () => {
 
             // Refresh assigned users list
             const assignedUsersResponse = await fetchUsersByCustomerId(id);
-            setAssignedUsers(assignedUsersResponse.data);
+            setAssignedUsers(assignedUsersResponse.data.data);
         } catch (error) {
             toast.error("Error assigning user.");
         }
@@ -75,7 +76,7 @@ const CustomerEdit = () => {
 
             // Refresh assigned users list
             const assignedUsersResponse = await fetchUsersByCustomerId(id);
-            setAssignedUsers(assignedUsersResponse.data);
+            setAssignedUsers(assignedUsersResponse.data.data);
         } catch (error) {
             toast.error("Error removing user.");
         }

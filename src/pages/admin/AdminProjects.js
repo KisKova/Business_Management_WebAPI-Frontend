@@ -1,84 +1,31 @@
-import { useEffect, useState } from "react";
-import { fetchAllProjects, createProject, updateProject, deleteProject } from "../services/api";
-import { toast } from "react-toastify";
 import Modal from "react-modal";
-import "../App.css";
+import "../../App.css";
+import {useProjects} from "../../hooks/useProjects";
+import {usePagination} from "../../hooks/usePagination";
 
 Modal.setAppElement("#root");
 
 const AdminProjects = () => {
-    const [projects, setProjects] = useState([]);
-    const [modalType, setModalType] = useState(null);
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [projectName, setProjectName] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const projectsPerPage = 10;
+    const {
+        projects,
+        modalType,
+        projectName,
+        setProjectName,
+        openModal,
+        closeModal,
+        handleCreateProject,
+        handleUpdateProject,
+        handleDeleteProject,
+    } = useProjects();
 
-    const totalPages = Math.ceil(projects.length / projectsPerPage);
-    const paginatedProjects = projects.slice(
-        (currentPage - 1) * projectsPerPage,
-        currentPage * projectsPerPage
-    );
-
-
-    useEffect(() => {
-        loadProjects();
-    }, []);
-
-    const loadProjects = async () => {
-        try {
-            const response = await fetchAllProjects();
-            setProjects(response.data);
-        } catch (error) {
-            toast.error("Failed to load projects.");
-        }
-    };
-
-    const openModal = (type, project = null) => {
-        setModalType(type);
-        setSelectedProject(project);
-        setProjectName(project ? project.name : "");
-    };
-
-    const closeModal = () => {
-        setModalType(null);
-        setSelectedProject(null);
-        setProjectName("");
-    };
-
-    const handleCreateProject = async (e) => {
-        e.preventDefault();
-        try {
-            await createProject(projectName);
-            toast.success("Project created successfully!");
-            closeModal();
-            loadProjects();
-        } catch (error) {
-            toast.error("Error creating project.");
-        }
-    };
-
-    const handleUpdateProject = async (e) => {
-        e.preventDefault();
-        try {
-            await updateProject(selectedProject.id, projectName);
-            toast.success("Project updated successfully!");
-            closeModal();
-            loadProjects();
-        } catch (error) {
-            toast.error("Error updating project.");
-        }
-    };
-
-    const handleDeleteProject = async (projectId) => {
-        try {
-            await deleteProject(projectId);
-            toast.success("Project deleted successfully!");
-            loadProjects();
-        } catch (error) {
-            toast.error("Error deleting project.");
-        }
-    };
+    const {
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        paginatedItems: paginatedProjects,
+        nextPage,
+        prevPage,
+    } = usePagination(projects, 10);
 
     return (
         <div className="admin-container">
@@ -108,11 +55,7 @@ const AdminProjects = () => {
             </table>
 
             <div className="pagination-container">
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                >
+                <button className="pagination-button" onClick={prevPage} disabled={currentPage === 1}>
                     &lt;
                 </button>
 
@@ -126,11 +69,7 @@ const AdminProjects = () => {
                     </button>
                 ))}
 
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                >
+                <button className="pagination-button" onClick={nextPage} disabled={currentPage === totalPages}>
                     &gt;
                 </button>
             </div>

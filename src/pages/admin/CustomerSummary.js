@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchCustomerSummary, fetchAllCustomers } from "../services/api";
+import { fetchAllCustomers } from "../../services/customerService";
+import { fetchCustomerSummary } from "../../services/timeTrackingService";
 import { toast } from "react-toastify";
 
 const CustomerSummary = () => {
@@ -11,7 +12,7 @@ const CustomerSummary = () => {
         const loadCustomers = async () => {
             try {
                 const res = await fetchAllCustomers();
-                setCustomers(res.data);
+                setCustomers(res.data.data);
             } catch {
                 toast.error("Failed to load customers");
             }
@@ -25,7 +26,7 @@ const CustomerSummary = () => {
         const loadSummary = async () => {
             try {
                 const res = await fetchCustomerSummary(selectedCustomerId);
-                setSummary(res.data);
+                setSummary(res.data.data);
             } catch {
                 toast.error("Failed to load summary");
             }

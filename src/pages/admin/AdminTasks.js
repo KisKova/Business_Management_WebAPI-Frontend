@@ -1,81 +1,31 @@
-import { useEffect, useState } from "react";
-import { fetchAllTasks, createTask, updateTask, deleteTask } from "../services/api";
-import { toast } from "react-toastify";
 import Modal from "react-modal";
-import "../App.css";
+import "../../App.css";
+import {usePagination} from "../../hooks/usePagination";
+import {useTasks} from "../../hooks/useTasks";
 
 Modal.setAppElement("#root");
 
 const AdminTasks = () => {
-    const [tasks, setTasks] = useState([]);
-    const [modalType, setModalType] = useState(null);
-    const [selectedTask, setSelectedTask] = useState(null);
-    const [taskName, setTaskName] = useState("");
+    const {
+        tasks,
+        modalType,
+        taskName,
+        setTaskName,
+        openModal,
+        closeModal,
+        handleCreateTask,
+        handleUpdateTask,
+        handleDeleteTask
+    } = useTasks();
 
-    // ✅ Pagination states
-    const [currentPage, setCurrentPage] = useState(1);
-    const tasksPerPage = 10;
-    const totalPages = Math.ceil(tasks.length / tasksPerPage);
-    const paginatedTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
-
-    useEffect(() => {
-        loadTasks();
-    }, []);
-
-    const loadTasks = async () => {
-        try {
-            const response = await fetchAllTasks();
-            setTasks(response.data);
-        } catch (error) {
-            toast.error("Failed to load tasks.");
-        }
-    };
-
-    const openModal = (type, task = null) => {
-        setModalType(type);
-        setSelectedTask(task);
-        setTaskName(task ? task.name : "");
-    };
-
-    const closeModal = () => {
-        setModalType(null);
-        setSelectedTask(null);
-        setTaskName("");
-    };
-
-    const handleCreateTask = async (e) => {
-        e.preventDefault();
-        try {
-            await createTask(taskName);
-            toast.success("Task created successfully!");
-            closeModal();
-            loadTasks();
-        } catch (error) {
-            toast.error("Error creating task.");
-        }
-    };
-
-    const handleUpdateTask = async (e) => {
-        e.preventDefault();
-        try {
-            await updateTask(selectedTask.id, taskName);
-            toast.success("Task updated successfully!");
-            closeModal();
-            loadTasks();
-        } catch (error) {
-            toast.error("Error updating task.");
-        }
-    };
-
-    const handleDeleteTask = async (taskId) => {
-        try {
-            await deleteTask(taskId);
-            toast.success("Task deleted successfully!");
-            loadTasks();
-        } catch (error) {
-            toast.error("Error deleting task.");
-        }
-    };
+    const {
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        paginatedItems: paginatedTasks,
+        nextPage,
+        prevPage,
+    } = usePagination(tasks, 10);
 
     return (
         <div className="admin-container">
@@ -106,13 +56,8 @@ const AdminTasks = () => {
                 </tbody>
             </table>
 
-            {/* ✅ Pagination */}
             <div className="pagination-container">
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                >
+                <button className="pagination-button" onClick={prevPage} disabled={currentPage === 1}>
                     &lt;
                 </button>
 
@@ -126,11 +71,7 @@ const AdminTasks = () => {
                     </button>
                 ))}
 
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                >
+                <button className="pagination-button" onClick={nextPage} disabled={currentPage === totalPages}>
                     &gt;
                 </button>
             </div>

@@ -1,18 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
-import {
-    startTracking,
-    getActiveTracking,
-    getAssignedCustomers,
-    fetchAllProjects,
-    fetchAllTasks,
-    stopTracking
-} from "../services/api";
+import { startTracking, getActiveTracking, getAssignedCustomers, stopTracking } from "../services/timeTrackingService";
+import { fetchAllProjects } from "../services/projectService";
+import { fetchAllTasks } from "../services/taskService";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { Menu, X, PlayCircle, StopCircle, Timer } from "lucide-react"; // if you're using lucide, or just use SVG
-
 
 Modal.setAppElement("#root");
 
@@ -42,9 +36,9 @@ const Header = () => {
     const loadActiveTracking = useCallback(async () => {
         try {
             const response = await getActiveTracking();
-            if (response.data && response.data.id) {
-                setTracking(response.data);
-                updateElapsedTime(response.data.start_time);
+            if (response.data.data && response.data.data.id) {
+                setTracking(response.data.data);
+                updateElapsedTime(response.data.data.start_time);
             } else {
                 setTracking(null);
             }
@@ -79,8 +73,8 @@ const Header = () => {
     const handleStartTracking = async () => {
         try {
             const response = await startTracking(note);
-            setTracking(response.data);
-            updateElapsedTime(response.data.start_time);
+            setTracking(response.data.data);
+            updateElapsedTime(response.data.data.start_time);
             setModalType(null);
             setNote("");
             toast.success("Time tracking started!");
@@ -96,9 +90,9 @@ const Header = () => {
                 fetchAllProjects(),
                 fetchAllTasks(),
             ]);
-            setAssignedCustomers(customersResponse.data);
-            setProjects(projectsResponse.data);
-            setTasks(tasksResponse.data);
+            setAssignedCustomers(customersResponse.data.data);
+            setProjects(projectsResponse.data.data);
+            setTasks(tasksResponse.data.data);
             setModalType("stopTracking");
         } catch (error) {
             toast.error("Error fetching tracking data.");
@@ -141,63 +135,68 @@ const Header = () => {
         <nav className="navbar">
             <div className="navbar-logo">
                 <span className="logo-text">PPC API</span>
+                {userData ? (
+                    <>
+                    {!tracking ? (
+                        <li>
+                            <button onClick={() => setModalType("startTracking")} className="icon-button" title="Start Tracking">
+                                <PlayCircle size={28} />
+                            </button>
+                        </li>
+                    ) : (
+                        <li className="navbar-time-tracking">
+                                        <span className="tracking-icon">
+                                          <Timer size={20} style={{ marginRight: "6px" }} />
+                                            {formatElapsedTime(elapsedTime)}
+                                        </span>
+                            <button onClick={openStopModal} className="icon-button" title="Stop Tracking">
+                                <StopCircle size={28} />
+                            </button>
+                        </li>
+
+                    )}
+                    </>
+                ):(<></>)}
 
                 {/* Hamburger button */}
                 <button className="menu-toggle" onClick={toggleMenu}>
                     {menuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
-
-            <ul className={`navbar-links ${menuOpen ? "open" : ""}`}>
-                {userData ? (
-                    <>
-                        <li><Link to="/time-tracking">Time Tracking</Link></li>
-                        {userData.role === "admin" && (
-                            <>
-                                <li><Link to="/tasks">Tasks</Link></li>
-                                <li><Link to="/projects">Projects</Link></li>
-                                <li><Link to="/customers">Customers</Link></li>
-                                <li><Link to="/admin-dashboard">Admin Panel</Link></li>
-                                <li><Link to="/customer-summary">Customer Summary</Link></li>
-                            </>
-                        )}
-                        {!tracking ? (
-                            <li>
-                                <button onClick={() => setModalType("startTracking")} className="icon-button" title="Start Tracking">
-                                    <PlayCircle size={28} />
+            <div className="navbar-options">
+                    {userData ? (
+                        <>
+                        <ul className={`navbar-links ${menuOpen ? "open" : ""}`}>
+                            <li><Link to="/time-tracking">Time Tracking</Link></li>
+                            {userData.role === "admin" && (
+                                <>
+                                    <li><Link to="/tasks">Tasks</Link></li>
+                                    <li><Link to="/projects">Projects</Link></li>
+                                    <li><Link to="/customers">Customers</Link></li>
+                                    <li><Link to="/admin-dashboard">Admin Panel</Link></li>
+                                    <li><Link to="/customer-summary">Customer Summary</Link></li>
+                                </>
+                            )}
+                            <li className="navbar-profile-container">
+                                <Link to="/profile">
+                                    <span className="username">{userData.username}</span>
+                                </Link>
+                            </li>
+                            <li className="navbar-profile-container">
+                                <button className="logout-button" onClick={logout}>
+                                    Logout
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                        <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                    </svg>
                                 </button>
                             </li>
-                        ) : (
-                            <li className="navbar-time-tracking">
-                                <span className="tracking-icon">
-                                  <Timer size={20} style={{ marginRight: "6px" }} />
-                                    {formatElapsedTime(elapsedTime)}
-                                </span>
-                                <button onClick={openStopModal} className="icon-button" title="Stop Tracking">
-                                    <StopCircle size={28} />
-                                </button>
-                            </li>
-
-                        )}
-                        <li className="navbar-profile-container">
-                            <Link to="/profile">
-                                <span className="username">{userData.username}</span>
-                            </Link>
-                        </li>
-                        <li className="navbar-profile-container">
-                            <button className="logout-button" onClick={logout}>
-                                Logout
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-right" viewBox="0 0 16 16">
-                                    <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                                    <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                                </svg>
-                            </button>
-                        </li>
-                    </>
-                ) : (
-                    <li><Link to="/login">Login</Link></li>
-                )}
-            </ul>
+                        </ul>
+                        </>
+                    ) : (
+                        <></>
+                    )}
+            </div>
 
             {/* Start Tracking Modal */}
             <Modal

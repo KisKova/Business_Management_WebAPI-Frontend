@@ -1,131 +1,42 @@
 import { useEffect, useState, useCallback } from "react";
 import {
-    fetchTimeTrackings,
-    fetchAllActiveTrackings,
-    fetchAllProjects,
-    fetchAllTasks,
+    fetchTimeTracking,
+    fetchAllActiveTracking,
     getAssignedCustomers,
     addManualTracking,
     updateTracking,
-    fetchAllCustomers,
     deleteTracking,
-} from "../services/api";
+} from "../../services/timeTrackingService";
+import { fetchAllTasks } from "../../services/taskService";
+import { fetchAllProjects } from "../../services/projectService";
+import { fetchAllCustomers, } from "../../services/customerService";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
-import "../App.css";
+import "../../App.css";
+import {useTimeTracking} from "../../hooks/useTimeTracking";
 
 Modal.setAppElement("#root");
 
 const TimeTrackingPage = () => {
-    const [trackings, setTrackings] = useState([]);
-    const [activeTrackings, setActiveTrackings] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editTracking, setEditTracking] = useState(null);
-    const [projects, setProjects] = useState([]);
-    const [tasks, setTasks] = useState([]);
-    const [customers, setCustomers] = useState([]);
-    const [allCustomer, setAllCustomer] = useState([]);
-    const [manualTracking, setManualTracking] = useState({
-        start_time: "",
-        duration_hours: "",
-        duration_minutes: "",
-        project_id: "",
-        task_id: "",
-        customer_id: "",
-        note: ""
-    });
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const {
+        userData,
+        loading,
+        activeTrackings,
+        projects,
+        tasks,
+        customers,
+        allCustomer,
+        modalOpen,
+        setModalOpen,
+        editTracking,
+        setEditTracking,
+        manualTracking,
+        setManualTracking,
+        handleManualTrackingSubmit,
+        handleDeleteTracking,
+        handleUpdateTracking,
+    } = useTimeTracking();
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentTrackings = trackings.slice(indexOfFirstItem, indexOfLastItem);
-
-    const totalPages = Math.ceil(trackings.length / itemsPerPage);
-
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
-
-
-
-    const userData = JSON.parse(localStorage.getItem("userData"));
-
-    const loadTrackings = useCallback(async () => {
-        setLoading(true);
-        try {
-            const commonPromises = [
-                fetchTimeTrackings(),
-                fetchAllActiveTrackings(),
-                fetchAllProjects(),
-                fetchAllTasks(),
-                getAssignedCustomers()
-            ];
-
-            const user = JSON.parse(localStorage.getItem("userData"));
-
-            const allCustomerPromise = user.role === "admin"
-                ? fetchAllCustomers()
-                : getAssignedCustomers();
-
-            const [
-                trackingsResponse,
-                activeResponse,
-                projectsResponse,
-                tasksResponse,
-                customerResponse,
-                allCustomerResponse
-            ] = await Promise.all([...commonPromises, allCustomerPromise]);
-
-            setTrackings(trackingsResponse.data);
-            setActiveTrackings(activeResponse.data);
-            setProjects(projectsResponse.data);
-            setTasks(tasksResponse.data);
-
-            if (user.role === "admin") {
-                setAllCustomer(allCustomerResponse.data);
-                setCustomers(customerResponse.data);
-            } else {
-                setCustomers(customerResponse.data);
-                setAllCustomer([]);
-            }
-        } catch (error) {
-            toast.error("Failed to fetch time trackings.");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        loadTrackings();
-    }, [loadTrackings]);
-
-    const handleManualTrackingSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await addManualTracking(manualTracking);
-            toast.success("Time tracking added successfully!");
-            setModalOpen(false);
-            loadTrackings();
-        } catch (error) {
-            toast.error("Failed to add time tracking.");
-        }
-    };
-
-    const handleDeleteTracking = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this time tracking entry?")) return;
-
-        try {
-            await deleteTracking(id);
-            toast.success("Tracking entry deleted.");
-            loadTrackings();
-        } catch (error) {
-            toast.error("Failed to delete tracking.");
-        }
-    };
 
     return (
         <div className="admin-container">
@@ -134,7 +45,7 @@ const TimeTrackingPage = () => {
 
             {/* Ongoing Trackings */}
             {activeTrackings.length > 0 && (
-                <div className="admin-trow" style={{ backgroundColor: "#fff3cd", padding: "10px", borderRadius: "8px" }}>
+                <div style={{ backgroundColor: "#fff3cd", padding: "10px", borderRadius: "8px", boxShadow: "0 3px 6px rgba(0, 0, 0, 0.1)", marginTop: "20px" }}>
                     <h3>Ongoing Trackings</h3>
                     <table className="admin-table">
                         <thead className="admin-thead">
@@ -147,7 +58,7 @@ const TimeTrackingPage = () => {
                         <tbody>
                         {activeTrackings.map((tracking) => (
                             <tr key={tracking.id}>
-                                {userData?.role === "admin" && <td>{tracking.username}</td>}
+                                {userData?.role === "admin" && <td style={{fontWeight: "bold"}}>{tracking.username}</td>}
                                 <td>{new Date(tracking.start_time).toLocaleString()}</td>
                                 <td>{tracking.note}</td>
                             </tr>
@@ -170,10 +81,8 @@ const TimeTrackingPage = () => {
                         <th>Project</th>
                         <th>Task</th>
                         <th>Start Time</th>
-                        <th>End Time</th>
                         <th>Billing Type</th>
-                        <th>Hours</th>
-                        <th>Minutes</th>
+                        <th>Duration</th>
                         <th>Note</th>
                         <th>Actions</th>
                     </tr>
@@ -181,15 +90,13 @@ const TimeTrackingPage = () => {
                     <tbody>
                     {currentTrackings.map((tracking) => (
                         <tr key={tracking.id} className="admin-trow">
-                            {userData?.role === "admin" && <td>{tracking.username}</td>}
+                            {userData?.role === "admin" && <td style={{fontWeight: "bold"}}>{tracking.username}</td>}
                             <td>{tracking.customer_name}</td>
                             <td>{tracking.project_name}</td>
                             <td>{tracking.task_name}</td>
                             <td>{new Date(tracking.start_time).toLocaleString()}</td>
-                            <td>{new Date(tracking.end_time).toLocaleString()}</td>
                             <td>{tracking.billing_type}</td>
-                            <td>{tracking.duration_hours}</td>
-                            <td>{tracking.duration_minutes}</td>
+                            {tracking.duration_hours > 0 ? (<td>{tracking.duration_hours + " hours " + tracking.duration_minutes + " minutes"}</td>) : (<td>{tracking.duration_minutes + " minutes"}</td>) }
                             <td>{tracking.note}</td>
                             <td>
                                 <button onClick={() => setEditTracking(tracking)} className="edit-button">Edit</button>

@@ -1,61 +1,29 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCustomers } from "../../hooks/useCustomers";
+import { usePagination } from "../../hooks/usePagination";
+import "../../App.css";
 import Modal from "react-modal";
-import { fetchAllCustomers, createCustomer } from "../services/api";
-import { toast } from "react-toastify";
-import "../App.css";
-
-Modal.setAppElement("#root");
 
 const AdminCustomers = () => {
     const navigate = useNavigate();
-    const [customers, setCustomers] = useState([]);
-    const [modalType, setModalType] = useState(null);
-    const [customerData, setCustomerData] = useState({
-        name: "",
-        hourly_fee: "",
-        billing_type: "hourly",
-        invoice_type: "",
-        tax_number: ""
-    });
-    const [currentPage, setCurrentPage] = useState(1);
-    const customersPerPage = 10;
+    const {
+        customers,
+        modalType,
+        setModalType,
+        customerData,
+        setCustomerData,
+        closeModal,
+        handleCreateCustomer
+    } = useCustomers();
 
-    const totalPages = Math.ceil(customers.length / customersPerPage);
-    const paginatedCustomers = customers.slice(
-        (currentPage - 1) * customersPerPage,
-        currentPage * customersPerPage
-    );
-
-
-
-    useEffect(() => {
-        const loadCustomers = async () => {
-            try {
-                const response = await fetchAllCustomers();
-                setCustomers(response.data);
-            } catch (error) {
-                toast.error("Failed to fetch customers.");
-                navigate("/login");
-            }
-        };
-        loadCustomers();
-    }, [navigate]);
-
-    const closeModal = () => setModalType(null);
-
-    const handleCreateCustomer = async (e) => {
-        e.preventDefault();
-        try {
-            await createCustomer(customerData);
-            toast.success("Customer created successfully!");
-            closeModal();
-            const response = await fetchAllCustomers();
-            setCustomers(response.data);
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Error creating customer.");
-        }
-    };
+    const {
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        paginatedItems: paginatedCustomers,
+        nextPage,
+        prevPage,
+    } = usePagination(customers, 10);
 
     return (
         <div className="admin-container">
@@ -99,11 +67,7 @@ const AdminCustomers = () => {
             </table>
 
             <div className="pagination-container">
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
+                <button className="pagination-button" onClick={prevPage} disabled={currentPage === 1}>
                     &lt;
                 </button>
 
@@ -117,15 +81,10 @@ const AdminCustomers = () => {
                     </button>
                 ))}
 
-                <button
-                    className="pagination-button"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
+                <button className="pagination-button" onClick={nextPage} disabled={currentPage === totalPages}>
                     &gt;
                 </button>
             </div>
-
 
             <Modal
                 isOpen={modalType === "createCustomer"}

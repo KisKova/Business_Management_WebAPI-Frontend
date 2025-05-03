@@ -12,6 +12,7 @@ import AdminProjects from "./pages/admin/AdminProjects";
 import AdminTasks from "./pages/admin/AdminTasks";
 import TimeTracking from "./pages/common/TimeTracking";
 import CustomerSummary from "./pages/admin/CustomerSummary";
+import Reports from "./pages/common/Reports";
 import Modal from "react-modal";
 
 Modal.setAppElement("#root");
@@ -35,6 +36,7 @@ const App = () => {
                     <Route path="/projects" element={<AdminProjects />} />
                     <Route path="/tasks" element={<AdminTasks />} />
                     <Route path="/time-tracking" element={<TimeTracking />} />
+                    <Route path="/reports" element={<Reports />} />
                     <Route path="/customer-summary" element={<CustomerSummary />} />
                 </Routes>
             </Suspense>

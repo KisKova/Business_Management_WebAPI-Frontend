@@ -66,11 +66,13 @@ const Header = () => {
     }, [tracking]);
 
     const updateElapsedTime = (startTime) => {
+        console.log("Update Elapsed Time - startTime:", startTime);
         const diff = Math.floor((new Date() - new Date(startTime)) / 1000);
         setElapsedTime(diff);
     };
 
-    const handleStartTracking = async () => {
+    const handleStartTracking = async (e) => {
+        e.preventDefault();
         try {
             const response = await startTracking(note);
             setTracking(response.data.data);
@@ -79,8 +81,16 @@ const Header = () => {
             setNote("");
             toast.success("Time tracking started!");
         } catch (error) {
+            if (error.response) {
+                console.error("Server responded with:", error.response.status, error.response.data);
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+            } else {
+                console.error("Error setting up request:", error.message);
+            }
             toast.error("Error starting time tracking.");
         }
+
     };
 
     const openStopModal = async () => {
@@ -99,7 +109,8 @@ const Header = () => {
         }
     };
 
-    const handleStopTracking = async () => {
+    const handleStopTracking = async (e) => {
+        e.preventDefault();
         if (!selectedProject || !selectedTask || !selectedCustomer) {
             toast.error("Please select a project, task, and customer.");
             return;
@@ -168,6 +179,8 @@ const Header = () => {
                         <>
                         <ul className={`navbar-links ${menuOpen ? "open" : ""}`}>
                             <li><Link to="/time-tracking">Time Tracking</Link></li>
+                            <li><Link to="/reports">Reports</Link></li>
+
                             {userData.role === "admin" && (
                                 <>
                                     <li><Link to="/tasks">Tasks</Link></li>

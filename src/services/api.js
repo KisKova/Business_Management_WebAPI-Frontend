@@ -19,4 +19,21 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.data.message === "Invalid token")) {
+            console.warn("Invalid token detected, redirecting to login...");
+
+            // Clear localStorage
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("userData");
+
+            // Redirect to login page
+            window.location.href = "/login";
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

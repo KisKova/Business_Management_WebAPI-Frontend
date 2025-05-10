@@ -26,7 +26,12 @@ export const startTracking = async (note) => {
 
 // Stop tracking (requires project, task, customer)
 export const stopTracking = async (trackingId, projectId, taskId, customerId) => {
-    return api.post(`/time-tracking/stop`, { id: trackingId, project_id: projectId, task_id: taskId, customer_id: customerId });
+    return api.post(`/time-tracking/stop`, {
+        id: trackingId,
+        project_id: projectId,
+        task_id: taskId,
+        customer_id: customerId
+    });
 };
 
 // Get active tracking session

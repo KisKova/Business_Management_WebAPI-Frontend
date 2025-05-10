@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
+import logo from "../ppcmedia-logo-feher.png";
 import { startTracking, getActiveTracking, getAssignedCustomers, stopTracking } from "../services/timeTrackingService";
 import { fetchAllProjects } from "../services/projectService";
 import { fetchAllTasks } from "../services/taskService";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
-import { Menu, X, PlayCircle, StopCircle, Timer } from "lucide-react"; // if you're using lucide, or just use SVG
+import { Menu, X, PlayCircle, StopCircle, Timer } from "lucide-react";
 
 Modal.setAppElement("#root");
 
@@ -145,7 +146,10 @@ const Header = () => {
     return (
         <nav className="navbar">
             <div className="navbar-logo">
-                <span className="logo-text">PPC API</span>
+                <img
+                    src={logo}
+                    alt="PPC API Logo"
+                />
                 {userData ? (
                     <>
                     {!tracking ? (

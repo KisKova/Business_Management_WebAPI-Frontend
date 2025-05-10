@@ -35,60 +35,62 @@ const CustomerSummary = () => {
     }, [selectedCustomerId]);
 
     return (
-        <div style={{ padding: "2rem", maxWidth: "700px", margin: "auto" }}>
-            <h2>Customer Time Summary</h2>
+        <div className="admin-container">
+            <h2>Customer Time and Cost Summary</h2>
 
-            <label>Select Customer:</label>
-            <select
-                value={selectedCustomerId}
-                onChange={(e) => setSelectedCustomerId(e.target.value)}
-            >
-                <option value="">-- Select --</option>
-                {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-            </select>
+            <div className="customer-summary-selector">
+                <label className="customer-summary-sub-title">Select Customer:</label>
+                <select
+                    value={selectedCustomerId}
+                    onChange={(e) => setSelectedCustomerId(e.target.value)}
+                    className="admin-input"
+                >
+                    <option value="">-- Select --</option>
+                    {customers.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
+            </div>
 
-            {summary.length > 0 && (
-                <table style={{ width: "100%", marginTop: "2rem", borderCollapse: "collapse" }}>
-                    <thead>
-                    <tr>
-                        <th style={cellStyle}>Month</th>
-                        <th style={cellStyle}>Hours Tracked</th>
-                        <th style={cellStyle}>Hourly Rate</th>
-                        <th style={cellStyle}>Total Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {summary.map(row => {
-                        const hours = Number(row.total_hours || 0);
-                        const rate = Number(row.hourly_fee || 0);
-                        const cost = (hours * rate).toFixed(2);
-                        const month = new Date(row.month).toLocaleDateString("default", {
-                            year: "numeric",
-                            month: "long",
-                        });
+            {selectedCustomerId && (
+                summary.length > 0 ? (
+                    <table className="admin-table">
+                        <thead className="admin-thead">
+                        <tr>
+                            <th>Month</th>
+                            <th>Hours Tracked</th>
+                            <th>Hourly Rate</th>
+                            <th>Total Cost</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {summary.map(row => {
+                            const hours = Number(row.total_hours || 0);
+                            const rate = Number(row.hourly_fee || 0);
+                            const cost = (hours * rate).toFixed(2);
+                            const month = new Date(row.month).toLocaleDateString("default", {
+                                year: "numeric",
+                                month: "long",
+                            });
 
-                        return (
-                            <tr key={row.month}>
-                                <td style={cellStyle}>{month}</td>
-                                <td style={cellStyle}>{hours.toFixed(2)}</td>
-                                <td style={cellStyle}>${rate.toFixed(2)}</td>
-                                <td style={cellStyle}>${cost}</td>
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
+                            return (
+                                <tr key={row.month} className="admin-trow">
+                                    <td>{month}</td>
+                                    <td>{hours.toFixed(2)}</td>
+                                    <td>${rate.toFixed(2)}</td>
+                                    <td>${cost}</td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p className="text-center text-gray-500 mt-4">No data available for this customer.</p>
+                )
             )}
+
         </div>
     );
-};
-
-const cellStyle = {
-    padding: "10px",
-    borderBottom: "1px solid #ddd",
-    textAlign: "left"
 };
 
 export default CustomerSummary;

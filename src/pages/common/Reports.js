@@ -9,7 +9,7 @@ const Reports = () => {
         setYear,
         month,
         setMonth,
-        handleGenerateReport
+        handleGenerateReport,
     } = useGoogleAdsReport();
 
     const years = [2023, 2024, 2025];
@@ -29,33 +29,37 @@ const Reports = () => {
     ];
 
     return (
-        <div className="p-6 max-w-xl mx-auto bg-white rounded shadow">
-            <h2 className="text-xl font-bold mb-4">Create Google Ads Report</h2>
+        <div className="admin-container">
+            <h2>Google Ads Report</h2>
 
-            <label className="block font-medium">Select Account</label>
-            <select
-                value={selectedAccount?.id || ""}
-                onChange={(e) => {
-                    const account = accounts.find((acc) => acc.id === e.target.value);
-                    setSelectedAccount(account || null);
-                }}
-                className="w-full border p-2 mb-4"
-            >
-                <option value="">-- Select Account --</option>
-                {accounts.map((acc) => (
-                    <option key={acc.id} value={acc.id}>
-                        {acc.name} ({acc.id})
-                    </option>
-                ))}
-            </select>
+            <div className="report-card">
+                {/* Account Dropdown */}
+                <div className="selection-div">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Select Account:</label>
+                    <select
+                        value={selectedAccount?.id || ""}
+                        onChange={(e) => {
+                            const account = accounts.find((acc) => acc.id === e.target.value);
+                            setSelectedAccount(account || null);
+                        }}
+                        className="admin-input"
+                    >
+                        <option value="">-- Select Account --</option>
+                        {accounts.map((acc) => (
+                            <option key={acc.id} value={acc.id}>
+                                {acc.name} ({acc.id})
+                            </option>
+                        ))}
+                    </select>
 
-            <div className="flex gap-4 mb-4">
-                <div className="flex-1">
-                    <label className="block font-medium">Year</label>
+
+                {/* Year & Month */}
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Year:</label>
                     <select
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
-                        className="w-full border p-2"
+                        className="admin-input"
                     >
                         <option value="">-- Year --</option>
                         {years.map((y) => (
@@ -64,14 +68,14 @@ const Reports = () => {
                             </option>
                         ))}
                     </select>
-                </div>
 
-                <div className="flex-1">
-                    <label className="block font-medium">Month</label>
+
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Month:</label>
                     <select
                         value={month}
                         onChange={(e) => setMonth(e.target.value)}
-                        className="w-full border p-2"
+                        className="admin-input"
                     >
                         <option value="">-- Month --</option>
                         {months.map((m) => (
@@ -80,18 +84,18 @@ const Reports = () => {
                             </option>
                         ))}
                     </select>
+
+                {/* Button */}
+                    <button
+                        onClick={handleGenerateReport}
+                        className="profile-button"
+                    >
+                        Create Report
+                    </button>
                 </div>
             </div>
-
-            <button
-                onClick={handleGenerateReport}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-                Create Report
-            </button>
         </div>
     );
 };
 
 export default Reports;
-

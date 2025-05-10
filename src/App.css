@@ -568,6 +568,21 @@
   background: #f9f9f9;
 }
 
+.report-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  width: 400px;
+  margin: auto;
+}
+
+.selection-div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .profile-button {
   padding: 10px 15px;
   margin: 10px;
@@ -578,4 +593,17 @@
   background: #007bff;
   color: white;
   border: none;
+}
+
+.customer-summary-selector {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-summary-sub-title {
+  font-size: 18px;
+  font-weight: 500;
 }

@@ -1,38 +1,12 @@
-import { useEffect, useState } from "react";
-import { fetchAllCustomers } from "../../services/customerService";
-import { fetchCustomerSummary } from "../../services/timeTrackingService";
-import { toast } from "react-toastify";
+import { useCustomerSummary } from "../../hooks/useCustomers"; // adjust path as needed
 
 const CustomerSummary = () => {
-    const [customers, setCustomers] = useState([]);
-    const [selectedCustomerId, setSelectedCustomerId] = useState("");
-    const [summary, setSummary] = useState([]);
-
-    useEffect(() => {
-        const loadCustomers = async () => {
-            try {
-                const res = await fetchAllCustomers();
-                setCustomers(res.data.data);
-            } catch {
-                toast.error("Failed to load customers");
-            }
-        };
-        loadCustomers();
-    }, []);
-
-    useEffect(() => {
-        if (!selectedCustomerId) return;
-
-        const loadSummary = async () => {
-            try {
-                const res = await fetchCustomerSummary(selectedCustomerId);
-                setSummary(res.data.data);
-            } catch {
-                toast.error("Failed to load summary");
-            }
-        };
-        loadSummary();
-    }, [selectedCustomerId]);
+    const {
+        customers,
+        selectedCustomerId,
+        setSelectedCustomerId,
+        summary
+    } = useCustomerSummary();
 
     return (
         <div className="admin-container">
@@ -88,7 +62,6 @@ const CustomerSummary = () => {
                     <p className="text-center text-gray-500 mt-4">No data available for this customer.</p>
                 )
             )}
-
         </div>
     );
 };

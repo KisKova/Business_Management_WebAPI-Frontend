@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+// useTimeTrackingPage.js
+import { useEffect, useState, useCallback } from "react";
 import {
     fetchTimeTracking,
     fetchAllActiveTracking,
@@ -12,7 +13,7 @@ import { fetchAllProjects } from "../services/projectService";
 import { fetchAllCustomers } from "../services/customerService";
 import { toast } from "react-toastify";
 
-export const useTimeTracking = () => {
+export const useTimeTrackingPage = () => {
     const [trackings, setTrackings] = useState([]);
     const [activeTrackings, setActiveTrackings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,9 +37,33 @@ export const useTimeTracking = () => {
 
     const userData = JSON.parse(localStorage.getItem("userData"));
 
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentTrackings = trackings.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(trackings.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
     const loadTrackings = useCallback(async () => {
         setLoading(true);
         try {
+            const commonPromises = [
+                fetchTimeTracking(),
+                fetchAllActiveTracking(),
+                fetchAllProjects(),
+                fetchAllTasks(),
+                getAssignedCustomers()
+            ];
+
+            const user = JSON.parse(localStorage.getItem("userData"));
+            const allCustomerPromise = user.role === "admin"
+                ? fetchAllCustomers()
+                : getAssignedCustomers();
+
             const [
                 trackingsResponse,
                 activeResponse,
@@ -46,21 +71,14 @@ export const useTimeTracking = () => {
                 tasksResponse,
                 customerResponse,
                 allCustomerResponse
-            ] = await Promise.all([
-                fetchTimeTracking(),
-                fetchAllActiveTracking(),
-                fetchAllProjects(),
-                fetchAllTasks(),
-                getAssignedCustomers(),
-                userData?.role === "admin" ? fetchAllCustomers() : getAssignedCustomers()
-            ]);
+            ] = await Promise.all([...commonPromises, allCustomerPromise]);
 
             setTrackings(trackingsResponse.data.data);
             setActiveTrackings(activeResponse.data.data);
             setProjects(projectsResponse.data.data);
             setTasks(tasksResponse.data.data);
 
-            if (userData?.role === "admin") {
+            if (user.role === "admin") {
                 setAllCustomer(allCustomerResponse.data.data);
                 setCustomers(customerResponse.data.data);
             } else {
@@ -78,13 +96,6 @@ export const useTimeTracking = () => {
         loadTrackings();
     }, [loadTrackings]);
 
-    const handlePageChange = (page) => {
-        const totalPages = Math.ceil(trackings.length / itemsPerPage);
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
-
     const handleManualTrackingSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -92,64 +103,60 @@ export const useTimeTracking = () => {
             toast.success("Time tracking added successfully!");
             setModalOpen(false);
             loadTrackings();
-        } catch {
+        } catch (error) {
             toast.error("Failed to add time tracking.");
         }
     };
 
     const handleDeleteTracking = async (id) => {
         if (!window.confirm("Are you sure you want to delete this time tracking entry?")) return;
+
         try {
             await deleteTracking(id);
             toast.success("Tracking entry deleted.");
             loadTrackings();
-        } catch {
+        } catch (error) {
             toast.error("Failed to delete tracking.");
         }
     };
 
-    const handleUpdateTracking = async (e) => {
+    const handleTrackingUpdate = async (e, updatedData) => {
         e.preventDefault();
         try {
             const updatedTracking = {
-                ...editTracking,
-                start_time: new Date(editTracking.start_time).toISOString(),
+                ...updatedData,
+                start_time: new Date(updatedData.start_time).toISOString(),
             };
-            await updateTracking(editTracking.id, updatedTracking);
+            await updateTracking(updatedData.id, updatedTracking);
             toast.success("Tracking updated!");
             setEditTracking(null);
             loadTrackings();
-        } catch {
+        } catch (error) {
             toast.error("Failed to update tracking.");
         }
     };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentTrackings = trackings.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(trackings.length / itemsPerPage);
-
     return {
         userData,
-        loading,
-        currentTrackings,
+        trackings,
         activeTrackings,
-        projects,
-        tasks,
-        customers,
-        allCustomer,
+        loading,
         modalOpen,
         setModalOpen,
         editTracking,
         setEditTracking,
+        projects,
+        tasks,
+        customers,
+        allCustomer,
         manualTracking,
         setManualTracking,
+        currentPage,
+        totalPages,
+        currentTrackings,
+        handlePageChange,
         handleManualTrackingSubmit,
         handleDeleteTracking,
-        handleUpdateTracking,
-        currentPage,
-        setCurrentPage,
-        handlePageChange,
-        totalPages
+        handleTrackingUpdate
     };
 };

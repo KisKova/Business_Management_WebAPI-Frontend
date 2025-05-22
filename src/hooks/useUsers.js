@@ -5,7 +5,7 @@ import {
     fetchAllUsers,
     createUser,
     updateUser,
-    changeUserPasswordAdmin,
+    changeUserPasswordAdmin, changePersonalData, changeUserPassword
 } from "../services/userService";
 import { toast } from "react-toastify";
 
@@ -128,3 +128,78 @@ export const useUsers = () => {
         handlePasswordUpdate,
     };
 };
+
+export const useProfile = () => {
+    const [userData, setUserData] = useState(() => {
+        const storedUser = localStorage.getItem("userData");
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+
+    const [modalType, setModalType] = useState(null);
+    const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "" });
+    const [personalData, setPersonalData] = useState({ username: "", email: "" });
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("userData");
+        if (storedUser) {
+            setUserData(JSON.parse(storedUser));
+        }
+    }, []);
+
+    const openModal = (type) => {
+        setModalType(type);
+        if (type === "personalData" && userData) {
+            setPersonalData({ username: userData.username, email: userData.email });
+        }
+    };
+
+    const closeModal = () => setModalType(null);
+
+    const handlePasswordChange = (e) => {
+        setPasswords(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handlePersonalDataChange = (e) => {
+        setPersonalData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await changeUserPassword(passwords.oldPassword, passwords.newPassword);
+            toast.success("Password changed successfully!");
+            setPasswords({ oldPassword: "", newPassword: "" });
+            closeModal();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error changing password.");
+        }
+    };
+
+    const handlePersonalDataUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await changePersonalData(personalData.email, personalData.username);
+            toast.success("Personal Info updated successfully!");
+            const updatedUserData = { ...userData, ...personalData };
+            setUserData(updatedUserData);
+            localStorage.setItem("userData", JSON.stringify(updatedUserData));
+            closeModal();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error changing personal data.");
+        }
+    };
+
+    return {
+        userData,
+        modalType,
+        openModal,
+        closeModal,
+        passwords,
+        personalData,
+        handlePasswordChange,
+        handlePersonalDataChange,
+        handlePasswordUpdate,
+        handlePersonalDataUpdate
+    };
+};
+

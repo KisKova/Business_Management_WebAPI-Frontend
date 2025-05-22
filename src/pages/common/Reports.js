@@ -52,9 +52,7 @@ const Reports = () => {
                         ))}
                     </select>
 
-
                 {/* Year & Month */}
-
                     <label className="block text-sm font-medium text-gray-700 mb-1">Year:</label>
                     <select
                         value={year}
@@ -68,8 +66,6 @@ const Reports = () => {
                             </option>
                         ))}
                     </select>
-
-
 
                     <label className="block text-sm font-medium text-gray-700 mb-1">Month:</label>
                     <select

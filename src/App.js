@@ -1,19 +1,23 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import Header from "./components/HeaderOld";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import Header from "./components/Header";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import Dashboard from "./components/Dashboard";
-import Profile from "./components/Profile";
-import AdminDashboard from "./components/AdminDashboard";
-import AdminCustomers from "./components/AdminCustomers";
-import CustomerEdit from "./components/CustomerEdit"
-import AdminProjects from "./components/AdminProjects";
-import AdminTasks from "./components/AdminTasks";
-import TimeTracking from "./components/TimeTracking";
+import Dashboard from "./pages/admin/Dashboard";
+import Profile from "./pages/common/Profile";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import CustomerEdit from "./pages/admin/CustomerEdit"
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminTasks from "./pages/admin/AdminTasks";
+import TimeTracking from "./pages/common/TimeTracking";
+import CustomerSummary from "./pages/admin/CustomerSummary";
+import Reports from "./pages/common/Reports";
+import Modal from "react-modal";
 
-const Login = lazy(() => import("./components/Login"));
+Modal.setAppElement("#root");
+
+const Login = lazy(() => import("./pages/common/Login"));
 
 const App = () => {
     return (
@@ -21,6 +25,8 @@ const App = () => {
             <Header/>
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
+                    <Route path="/" element={<Navigate to="/dashboard" />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/profile" element={<Profile />} />
@@ -30,6 +36,8 @@ const App = () => {
                     <Route path="/projects" element={<AdminProjects />} />
                     <Route path="/tasks" element={<AdminTasks />} />
                     <Route path="/time-tracking" element={<TimeTracking />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/customer-summary" element={<CustomerSummary />} />
                 </Routes>
             </Suspense>
             <ToastContainer

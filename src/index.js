@@ -1,13 +1,21 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
+const SetTitle = ({ children }) => {
+    useEffect(() => {
+        document.title = "Business Management WebAPI";
+    }, []);
+
+    return children;
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <React.StrictMode>
+    <SetTitle>
         <App />
-    </React.StrictMode>
+    </SetTitle>
 );
 
 // If you want to start measuring performance in your app, pass a function
